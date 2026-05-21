@@ -20,7 +20,26 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Rotte protette (tutto ciò che è dentro /(app) tranne la home root, o comunque sezioni specifiche)
+  const isProtectedRoute = request.nextUrl.pathname.startsWith('/prenota') || 
+                           request.nextUrl.pathname.startsWith('/cani') || 
+                           request.nextUrl.pathname.startsWith('/wallet') || 
+                           request.nextUrl.pathname.startsWith('/profilo');
+
+  if (isProtectedRoute && !user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Se l'utente è loggato e prova ad andare su /login, lo rimandiamo alla home
+  if (request.nextUrl.pathname === '/login' && user) {
+    const homeUrl = request.nextUrl.clone();
+    homeUrl.pathname = '/';
+    return NextResponse.redirect(homeUrl);
+  }
 
   return response;
 }
