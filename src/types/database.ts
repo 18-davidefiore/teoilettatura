@@ -1,0 +1,243 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  public: {
+    Enums: {
+      dog_size: "SMALL" | "MEDIUM" | "LARGE" | "GIANT";
+      station_status: "AVAILABLE" | "OCCUPIED" | "MAINTENANCE";
+      station_type: "WASH_BASIN" | "DRYING_ZONE" | "GROOMING_TABLE";
+      booking_status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+      token_transaction_type: "CHARGE" | "DEBIT" | "BONUS";
+    };
+    Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          first_name: string | null;
+          last_name: string | null;
+          phone: string | null;
+          email: string | null;
+          avatar_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          first_name?: string | null;
+          last_name?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          first_name?: string | null;
+          last_name?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+        };
+        Relationships: [];
+      };
+      dogs: {
+        Row: {
+          id: string;
+          owner_id: string;
+          name: string;
+          breed: string | null;
+          size: Database["public"]["Enums"]["dog_size"];
+          weight: number | null;
+          notes: string | null;
+          photo_url: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          name: string;
+          breed?: string | null;
+          size: Database["public"]["Enums"]["dog_size"];
+          weight?: number | null;
+          notes?: string | null;
+          photo_url?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          breed?: string | null;
+          size?: Database["public"]["Enums"]["dog_size"];
+          weight?: number | null;
+          notes?: string | null;
+          photo_url?: string | null;
+        };
+        Relationships: [];
+      };
+      stations: {
+        Row: {
+          id: string;
+          name: string;
+          type: Database["public"]["Enums"]["station_type"];
+          status: Database["public"]["Enums"]["station_status"];
+          cost_per_minute: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          type: Database["public"]["Enums"]["station_type"];
+          status?: Database["public"]["Enums"]["station_status"];
+          cost_per_minute: number;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          type?: Database["public"]["Enums"]["station_type"];
+          status?: Database["public"]["Enums"]["station_status"];
+          cost_per_minute?: number;
+        };
+        Relationships: [];
+      };
+      bookings: {
+        Row: {
+          id: string;
+          customer_id: string;
+          dog_id: string;
+          station_id: string;
+          start_time: string;
+          end_time: string;
+          status: Database["public"]["Enums"]["booking_status"];
+          total_credits: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          dog_id: string;
+          station_id: string;
+          start_time: string;
+          end_time: string;
+          status?: Database["public"]["Enums"]["booking_status"];
+          total_credits: number;
+          created_at?: string;
+        };
+        Update: {
+          start_time?: string;
+          end_time?: string;
+          status?: Database["public"]["Enums"]["booking_status"];
+          total_credits?: number;
+        };
+        Relationships: [];
+      };
+      wallets: {
+        Row: {
+          id: string;
+          customer_id: string;
+          balance_credits: number;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          balance_credits?: number;
+          updated_at?: string;
+        };
+        Update: {
+          balance_credits?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      token_transactions: {
+        Row: {
+          id: string;
+          wallet_id: string;
+          type: Database["public"]["Enums"]["token_transaction_type"];
+          amount_credits: number;
+          amount_currency: number;
+          stripe_intent_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          wallet_id: string;
+          type: Database["public"]["Enums"]["token_transaction_type"];
+          amount_credits: number;
+          amount_currency: number;
+          stripe_intent_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          type?: Database["public"]["Enums"]["token_transaction_type"];
+          amount_credits?: number;
+          amount_currency?: number;
+          stripe_intent_id?: string | null;
+        };
+        Relationships: [];
+      };
+      active_sessions: {
+        Row: {
+          id: string;
+          booking_id: string | null;
+          station_id: string;
+          customer_id: string;
+          remaining_seconds: number;
+          is_paused: boolean;
+          activated_at: string;
+        };
+        Insert: {
+          id?: string;
+          booking_id?: string | null;
+          station_id: string;
+          customer_id: string;
+          remaining_seconds: number;
+          is_paused?: boolean;
+          activated_at?: string;
+        };
+        Update: {
+          booking_id?: string | null;
+          remaining_seconds?: number;
+          is_paused?: boolean;
+          activated_at?: string;
+        };
+        Relationships: [];
+      };
+    };
+    Views: Record<string, never>;
+    Functions: {
+      create_booking: {
+        Args: {
+          p_station_id: string;
+          p_dog_id: string;
+          p_start_time: string;
+          p_end_time: string;
+        };
+        Returns: {
+          booking_id: string;
+          total_credits: number;
+          status: Database["public"]["Enums"]["booking_status"];
+        }[];
+      };
+      cancel_booking: {
+        Args: {
+          p_booking_id: string;
+        };
+        Returns: {
+          cancelled: boolean;
+          refunded: boolean;
+          refund_credits: number;
+        }[];
+      };
+      get_booking_availability: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: {
+          station_id: string;
+          start_time: string;
+          end_time: string;
+        }[];
+      };
+    };
+  };
+};
+
